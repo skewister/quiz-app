@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
-import QuizQuestionComponent from "@/app/components/QuizQuestion";
-import { QuizQuestion } from "@/app/types/quiz";
+import QuizDeux from "@/app/components/QuizDeux";
+import { QuizQuestionDeux } from "@/app/types/quizdeux";
+import { decodeHtmlEntities } from "@/app/decodeHtmlEntities";
 
-const Quiz = () => {
-  const [questions, setQuestions] = useState<QuizQuestion[]>([]);
+const QuizDeuxPage = () => {
+  const [questions, setQuestions] = useState<QuizQuestionDeux[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [correctAnswersCount, setCorrectAnswersCount] = useState(0);
   const [timeLeft, setTimeLeft] = useState(120); // 2 minutes
@@ -15,7 +16,7 @@ const Quiz = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchNextQuestion();
+    fetchQuestions();
   }, []);
 
   useEffect(() => {
@@ -32,21 +33,29 @@ const Quiz = () => {
     return () => clearInterval(timer);
   }, []);
 
-  const fetchNextQuestion = async () => {
+  const fetchQuestions = async () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        "https://api.openquizzdb.org/?key=Y253984525&choice=4&fac=2&anec=1"
+        "https://opentdb.com/api.php?amount=10&type=multiple"
       );
       console.log("API Response:", response.data);
       if (response.data.results && response.data.results.length > 0) {
-        setQuestions((prevQuestions) => [
-          ...prevQuestions,
-          response.data.results[0],
-        ]);
+        const formattedQuestions = response.data.results.map(
+          (questionData: any) => {
+            return {
+              question: decodeHtmlEntities(questionData.question),
+              correct_answer: decodeHtmlEntities(questionData.correct_answer),
+              incorrect_answers: questionData.incorrect_answers.map(
+                (answer: string) => decodeHtmlEntities(answer)
+              ),
+            };
+          }
+        );
+        setQuestions(formattedQuestions);
         setLoading(false);
         setShowNextButton(false);
-        console.log("Questions set:", response.data.results);
+        console.log("Questions set:", formattedQuestions);
       } else {
         console.error("No results found in API response");
         setLoading(false);
@@ -65,10 +74,9 @@ const Quiz = () => {
   };
 
   const handleNextQuestion = () => {
-    if (currentQuestionIndex < 6) {
-      // Total 7 questions
+    if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
-      fetchNextQuestion();
+      setShowNextButton(false);
     } else {
       setQuizCompleted(true);
     }
@@ -94,25 +102,22 @@ const Quiz = () => {
   }
 
   const currentQuestion = questions[currentQuestionIndex];
-  if (!currentQuestion) {
-    return <div>Loading question...</div>;
-  }
-
-  const allOptions = currentQuestion.autres_choix
-    ? [...currentQuestion.autres_choix]
-    : [];
+  const allOptions = shuffleArray([
+    ...currentQuestion.incorrect_answers,
+    currentQuestion.correct_answer,
+  ]);
 
   return (
     <main className="p-4 relative">
       <div className="absolute top-4 right-4 text-lg font-bold">
         {timeLeft} seconds left
       </div>
-      <h1 className="text-2xl font-bold mb-4">Quiz Page</h1>
-      <QuizQuestionComponent
+      <h1 className="text-2xl font-bold mb-4">QuizDeux Page</h1>
+      <QuizDeux
         question={currentQuestion.question}
         options={allOptions}
-        correctAnswer={currentQuestion.reponse_correcte}
-        anecdote={currentQuestion.anecdote}
+        correctAnswer={currentQuestion.correct_answer}
+        anecdote=""
         onAnswer={handleAnswer}
       />
       {showNextButton && (
@@ -124,4 +129,25 @@ const Quiz = () => {
   );
 };
 
-export default Quiz;
+// Fonction pour mélanger un tableau
+function shuffleArray(array: any[]) {
+  let currentIndex = array.length,
+    randomIndex;
+
+  // Tant qu'il reste des éléments à mélanger...
+  while (currentIndex !== 0) {
+    // Choisir un élément restant...
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+
+    // Et échanger avec l'élément actuel.
+    [array[currentIndex], array[randomIndex]] = [
+      array[randomIndex],
+      array[currentIndex],
+    ];
+  }
+
+  return array;
+}
+
+export default QuizDeuxPage;

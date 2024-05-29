@@ -2,7 +2,7 @@
 
 import { FC, useState, useEffect } from "react";
 
-interface QuizQuestionProps {
+interface QuizDeuxProps {
   question: string;
   options: string[];
   correctAnswer: string;
@@ -10,7 +10,7 @@ interface QuizQuestionProps {
   onAnswer: (answer: string, isCorrect: boolean) => void;
 }
 
-const QuizQuestion: FC<QuizQuestionProps> = ({
+const QuizDeux: FC<QuizDeuxProps> = ({
   question,
   options,
   correctAnswer,
@@ -19,14 +19,15 @@ const QuizQuestion: FC<QuizQuestionProps> = ({
 }) => {
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);
-
-  // Mélanger les options à chaque changement de question
-  const shuffledOptions = shuffle([...options]);
+  const [shuffledOptions, setShuffledOptions] = useState<string[]>([]);
 
   useEffect(() => {
     // Réinitialiser l'état lorsqu'une nouvelle question est affichée
     setSelectedAnswer(null);
     setIsAnswered(false);
+
+    // Mélanger les options de réponse une seule fois par question
+    setShuffledOptions(shuffleArray([...options]));
   }, [question]);
 
   const handleAnswerClick = (answer: string) => {
@@ -65,7 +66,7 @@ const QuizQuestion: FC<QuizQuestionProps> = ({
 };
 
 // Fonction pour mélanger un tableau
-function shuffle(array: any[]) {
+function shuffleArray(array: any[]) {
   let currentIndex = array.length,
     randomIndex;
 
@@ -85,4 +86,4 @@ function shuffle(array: any[]) {
   return array;
 }
 
-export default QuizQuestion;
+export default QuizDeux;
