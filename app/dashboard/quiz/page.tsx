@@ -9,6 +9,7 @@ const Quiz = () => {
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<string[]>([]);
+  const [timeLeft, setTimeLeft] = useState(60);
 
   useEffect(() => {
     async function fetchQuizQuestions() {
@@ -30,9 +31,22 @@ const Quiz = () => {
     fetchQuizQuestions();
   }, []);
 
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft((prevTime) => {
+        if (prevTime <= 1) {
+          clearInterval(timer);
+          return 0;
+        }
+        return prevTime - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
   const handleAnswer = (answer: string) => {
     setAnswers([...answers, answer]);
-    setCurrentQuestionIndex(currentQuestionIndex + 1);
+    // Ne pas passer à la question suivante ici
   };
 
   if (questions.length === 0) {
@@ -42,20 +56,32 @@ const Quiz = () => {
   const currentQuestion = questions[currentQuestionIndex];
   console.log("Current Question:", currentQuestion);
 
-  if (!currentQuestion) {
-    return <div>No more questions available</div>;
+  if (!currentQuestion || timeLeft <= 0) {
+    return <div>No more questions available or time is up</div>;
   }
 
   const allOptions = [...currentQuestion.autres_choix];
 
   return (
-    <main className="p-4">
+    <main className="p-4 relative">
+      <div className="absolute top-4 right-4 text-lg font-bold">
+        {timeLeft} seconds left
+      </div>
       <h1 className="text-2xl font-bold mb-4">Quiz Page</h1>
       <QuizQuestionComponent
         question={currentQuestion.question}
         options={allOptions}
+        correctAnswer={currentQuestion.reponse_correcte}
+        anecdote={currentQuestion.anecdote}
         onAnswer={handleAnswer}
       />
+      <button
+        onClick={() => setCurrentQuestionIndex(currentQuestionIndex + 1)}
+        className="btn btn-primary mt-4"
+        disabled={currentQuestionIndex >= questions.length - 1}
+      >
+        Next Question
+      </button>
     </main>
   );
 };

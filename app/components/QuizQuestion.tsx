@@ -1,21 +1,30 @@
 "use client";
 
-import { FC } from "react";
+import { FC, useState } from "react";
 
 interface QuizQuestionProps {
   question: string;
   options: string[];
+  correctAnswer: string;
+  anecdote: string;
   onAnswer: (answer: string) => void;
 }
 
 const QuizQuestion: FC<QuizQuestionProps> = ({
   question,
   options,
+  correctAnswer,
+  anecdote,
   onAnswer,
 }) => {
-  if (!question || !options || options.length === 0) {
-    return <div>Invalid question or options</div>;
-  }
+  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+  const [isAnswered, setIsAnswered] = useState(false);
+
+  const handleAnswerClick = (answer: string) => {
+    setSelectedAnswer(answer);
+    setIsAnswered(true);
+    onAnswer(answer);
+  };
 
   return (
     <div className="card shadow-lg p-4 mb-4">
@@ -24,13 +33,23 @@ const QuizQuestion: FC<QuizQuestionProps> = ({
         {options.map((option) => (
           <button
             key={option}
-            onClick={() => onAnswer(option)}
-            className="btn btn-primary"
+            onClick={() => handleAnswerClick(option)}
+            className={`btn ${
+              isAnswered
+                ? option === correctAnswer
+                  ? "btn-success"
+                  : option === selectedAnswer
+                  ? "btn-danger"
+                  : "btn-secondary"
+                : "btn-primary"
+            }`}
+            disabled={isAnswered}
           >
             {option}
           </button>
         ))}
       </div>
+      {isAnswered && <p className="mt-4">{anecdote}</p>}
     </div>
   );
 };
