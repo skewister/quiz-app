@@ -16,8 +16,12 @@ const Quiz = () => {
         const response = await axios.get(
           "https://api.openquizzdb.org/?key=Y253984525&choice=4&diff=2&anec=1"
         );
-        if (response.data.quizz) {
-          setQuestions(response.data.quizz);
+        console.log("API Response:", response.data);
+        if (response.data.results) {
+          setQuestions(response.data.results);
+          console.log("Questions set:", response.data.results);
+        } else {
+          console.error("No results found in API response");
         }
       } catch (error) {
         console.error("Error fetching quiz questions:", error);
@@ -36,17 +40,20 @@ const Quiz = () => {
   }
 
   const currentQuestion = questions[currentQuestionIndex];
+  console.log("Current Question:", currentQuestion);
 
   if (!currentQuestion) {
     return <div>No more questions available</div>;
   }
+
+  const allOptions = [...currentQuestion.autres_choix];
 
   return (
     <main className="p-4">
       <h1 className="text-2xl font-bold mb-4">Quiz Page</h1>
       <QuizQuestionComponent
         question={currentQuestion.question}
-        options={currentQuestion.propositions}
+        options={allOptions}
         onAnswer={handleAnswer}
       />
     </main>
