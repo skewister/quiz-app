@@ -5,12 +5,13 @@ import axios from "axios";
 import QuizDeux from "@/app/components/QuizDeux";
 import { QuizQuestionDeux } from "@/app/types/quizdeux";
 import { decodeHtmlEntities } from "@/app/decodeHtmlEntities";
+import Link from "next/link";
 
 const QuizDeuxPage = () => {
   const [questions, setQuestions] = useState<QuizQuestionDeux[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [correctAnswersCount, setCorrectAnswersCount] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(120); // 2 minutes
+  const [timeLeft, setTimeLeft] = useState(65); // 65 seconds
   const [showNextButton, setShowNextButton] = useState(false);
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -20,24 +21,27 @@ const QuizDeuxPage = () => {
   }, []);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft((prevTime) => {
-        if (prevTime <= 1) {
-          clearInterval(timer);
-          setQuizCompleted(true);
-          return 0;
-        }
-        return prevTime - 1;
-      });
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
+    let timer;
+    if (!quizCompleted) {
+      timer = setInterval(() => {
+        setTimeLeft((prevTime) => {
+          if (prevTime <= 1) {
+            clearInterval(timer);
+            setQuizCompleted(true);
+            return 0;
+          }
+          return prevTime - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(timer); // Cleanup interval on component unmount or when quiz is completed
+  }, [quizCompleted]);
 
   const fetchQuestions = async () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        "https://opentdb.com/api.php?amount=10&type=multiple"
+        "https://opentdb.com/api.php?amount=50&type=multiple"
       );
       console.log("API Response:", response.data);
       if (response.data.results && response.data.results.length > 0) {
@@ -82,17 +86,35 @@ const QuizDeuxPage = () => {
     }
   };
 
+  const handleReplay = () => {
+    setCorrectAnswersCount(0);
+    setCurrentQuestionIndex(0);
+    setQuizCompleted(false);
+    setTimeLeft(65);
+    fetchQuestions();
+  };
+
   if (loading && questions.length === 0) {
     return <div>Loading...</div>;
   }
 
   if (quizCompleted) {
     return (
-      <div className="p-4">
+      <div className="p-4 text-center">
         <h1 className="text-2xl font-bold mb-4">Quiz Completed</h1>
-        <p>
-          Your score: {correctAnswersCount} out of {questions.length}
+        <p className="text-lg mb-6">
+          Your score:{" "}
+          <span className="font-semibold">{correctAnswersCount}</span> correct
+          answers
         </p>
+        <div className="flex justify-center space-x-4">
+          <button onClick={handleReplay} className="btn btn-primary">
+            Rejouer
+          </button>
+          <Link href="/dashboard">
+            <button className="btn btn-secondary">Retour à l'accueil</button>
+          </Link>
+        </div>
       </div>
     );
   }
@@ -134,13 +156,10 @@ function shuffleArray(array: any[]) {
   let currentIndex = array.length,
     randomIndex;
 
-  // Tant qu'il reste des éléments à mélanger...
   while (currentIndex !== 0) {
-    // Choisir un élément restant...
     randomIndex = Math.floor(Math.random() * currentIndex);
     currentIndex--;
 
-    // Et échanger avec l'élément actuel.
     [array[currentIndex], array[randomIndex]] = [
       array[randomIndex],
       array[currentIndex],
