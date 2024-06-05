@@ -131,9 +131,9 @@ const QuizDeuxPage = () => {
 
   return (
     <main className="p-4 relative">
-      <div className="absolute top-4 right-4 text-lg font-bold">
+      <div className="mb-4 absolute top-4 right-4 text-lg font-bold">
         {timeLeft} seconds left
-      </div>
+      </div> <br/>
       <h1 className="text-2xl font-bold mb-4">QuizDeux Page</h1>
       <QuizDeux
         question={currentQuestion.question}
