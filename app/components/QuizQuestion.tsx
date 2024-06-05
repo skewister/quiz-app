@@ -20,11 +20,9 @@ const QuizQuestion: FC<QuizQuestionProps> = ({
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);
 
-  // Mélanger les options à chaque changement de question
   const shuffledOptions = shuffle([...options]);
 
   useEffect(() => {
-    // Réinitialiser l'état lorsqu'une nouvelle question est affichée
     setSelectedAnswer(null);
     setIsAnswered(false);
   }, [question]);
@@ -47,13 +45,17 @@ const QuizQuestion: FC<QuizQuestionProps> = ({
             className={`btn ${
               isAnswered
                 ? option === correctAnswer
-                  ? "btn-success"
+                  ? "bg-green-500 text-white"
                   : option === selectedAnswer
-                  ? "btn-danger"
-                  : "btn-secondary"
-                : "btn-primary"
+                  ? "bg-red-500 text-white"
+                  : "bg-gray-300 text-black cursor-not-allowed no-hover"
+                : "bg-blue-500 text-white hover:bg-blue-700"
             }`}
-            disabled={isAnswered}
+            disabled={
+              isAnswered &&
+              option !== selectedAnswer &&
+              option !== correctAnswer
+            }
           >
             {option}
           </button>
@@ -64,18 +66,14 @@ const QuizQuestion: FC<QuizQuestionProps> = ({
   );
 };
 
-// Fonction pour mélanger un tableau
 function shuffle(array: any[]) {
   let currentIndex = array.length,
     randomIndex;
 
-  // Tant qu'il reste des éléments à mélanger...
   while (currentIndex !== 0) {
-    // Choisir un élément restant...
     randomIndex = Math.floor(Math.random() * currentIndex);
     currentIndex--;
 
-    // Et échanger avec l'élément actuel.
     [array[currentIndex], array[randomIndex]] = [
       array[randomIndex],
       array[currentIndex],

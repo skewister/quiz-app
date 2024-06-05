@@ -32,3 +32,49 @@ body {
     text-wrap: balance;
   }
 }
+
+.btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s;
+}
+
+.bg-blue-500 {
+  background-color: #3b82f6;
+}
+
+.bg-green-500 {
+  background-color: #10b981;
+}
+
+.bg-red-500 {
+  background-color: #ef4444;
+}
+
+.bg-gray-300 {
+  background-color: #d1d5db;
+}
+
+.text-white {
+  color: #ffffff;
+}
+
+.text-black {
+  color: #000000;
+}
+
+.no-hover {
+  pointer-events: none; /* Désactiver les événements de la souris */
+}
+
+.no-hover:hover {
+  background-color: #d1d5db !important; /* Maintenir la couleur de fond des boutons désactivés */
+  color: #000 !important; /* Maintenir la couleur du texte des boutons désactivés */
+}
+
+.cursor-not-allowed {
+  cursor: not-allowed;
+}
