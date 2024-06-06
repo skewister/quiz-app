@@ -100,8 +100,8 @@ const QuizDeuxPage = () => {
 
   if (quizCompleted) {
     return (
-      <div className="p-4 text-center">
-        <h1 className="text-2xl font-bold mb-4">Quiz Completed</h1>
+      <div className="p-2 text-center">
+        <h1 className="text-2xl font-bold mb-4">Quiz Completed</h1><br/>
         <p className="text-lg mb-6">
           Your score:{" "}
           <span className="font-semibold">{correctAnswersCount}</span> correct
@@ -131,10 +131,10 @@ const QuizDeuxPage = () => {
 
   return (
     <main className="p-4 relative">
-      <div className="mb-4 absolute top-4 right-4 text-lg font-bold">
+      <div className="absolute top-4 right-4 text-lg font-bold">
         {timeLeft} seconds left
-      </div> <br/>
-      <h1 className="text-2xl font-bold mb-4">QuizDeux Page</h1>
+      </div>
+      <h1 className="text-2xl top-8 font-bold mb-4">QuizDeux Page</h1>
       <QuizDeux
         question={currentQuestion.question}
         options={allOptions}
