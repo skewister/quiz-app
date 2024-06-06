@@ -112,7 +112,7 @@ const QuizDeuxPage = () => {
             Rejouer
           </button>
           <Link href="/dashboard">
-            <button className="btn btn-secondary">Retour à l'accueil</button>
+            <button className="btn btn-secondary">Retour Accueil</button>
           </Link>
         </div>
       </div>
